@@ -103,7 +103,7 @@ public class SymbolTable {
 			}
 			// Added break if empty
 			if (this.keys[search_index].equals(null)) {
-				break;
+				return null;
 			}
 		}
 		return null;
@@ -116,24 +116,20 @@ public class SymbolTable {
 		// Removed contains condition
 		final int home = hash(key);
 		int search_index = 0;
-		boolean deleted = false;
 		for (int i = 0; i < M; i++) {
 			search_index = (home + i) % M;
 			if (key.equals(this.keys[search_index])) {
 				this.keys[search_index] = null;
 				this.vals[search_index] = null;
-				deleted = true;
 				this.N--;
+				this.rebalance(home, search_index);
+
 				break;
 			}
 			// Added condition for not finding the searched key
 			if (this.keys[search_index] == null) {
-				break;
+				return;
 			}
-		}
-		// Changed to only do this if deletion is made
-		if (deleted) {
-			this.rebalance(home, search_index);
 		}
 		return;
 
