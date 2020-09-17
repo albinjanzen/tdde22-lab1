@@ -1,6 +1,7 @@
+import java.util.ArrayList;
+
 public class SymbolTable {
 	private static final int INIT_CAPACITY = 7;
-
 
 	/* Number of key-value pairs in the symbol table */
 	private int N;
@@ -66,23 +67,28 @@ public class SymbolTable {
 	 * Insert the key-value pair into the symbol table
 	 */
 	public void put(String key, Character val) {
-		if (N==M) throw new RuntimeException("Tabellen Full");
+		if (val == null) {
+			this.delete(key);
+			return;
+		}
+		if (N == M)
+			throw new RuntimeException("Tabellen Full");
 		final int home = hash(key);
 		int search_index = 0;
 		for (int i = 0; i < M; i++) {
 			search_index = (home + i) % M;
-			if (this.keys[search_index]==null) {
+			if (this.keys[search_index] == null) {
 				this.keys[search_index] = key;
 				this.vals[search_index] = val;
 				N++;
 				return;
 			}
 			if (this.keys[search_index].equals(key)) {
-				this.vals[search_index]=val;
+				this.vals[search_index] = val;
 				return;
 			}
 		}
-	} 
+	}
 
 	/**
 	 * Return the value associated with the given key, null if no such value
@@ -95,29 +101,43 @@ public class SymbolTable {
 			if (key.equals(this.keys[search_index])) {
 				return this.vals[search_index];
 			}
+			// Added break if empty
+			if (this.keys[search_index].equals(null)) {
+				break;
+			}
 		}
 		return null;
-	} 
+	}
 
 	/**
 	 * Delete the key (and associated value) from the symbol table
 	 */
 	public void delete(String key) {
-		if (this.contains(key)) {
-			final int home = hash(key);
-			int search_index = 0;
-			for (int i = 0; i < M; i++) {
-				search_index = (home + i) % M;
-				if (key.equals(this.keys[search_index])) {
-					this.keys[search_index] = null;
-					this.vals[search_index] = null;
-				}
+		// Removed contains condition
+		final int home = hash(key);
+		int search_index = 0;
+		boolean deleted = false;
+		for (int i = 0; i < M; i++) {
+			search_index = (home + i) % M;
+			if (key.equals(this.keys[search_index])) {
+				this.keys[search_index] = null;
+				this.vals[search_index] = null;
+				deleted = true;
+				this.N--;
+				break;
+			}
+			// Added condition for not finding the searched key
+			if (this.keys[search_index] == null) {
+				break;
 			}
 		}
-		this.rebalance();
+		// Changed to only do this if deletion is made
+		if (deleted) {
+			this.rebalance(home, search_index);
+		}
 		return;
-		
-	} 
+
+	}
 
 	/**
 	 * Print the contents of the symbol table
@@ -138,15 +158,28 @@ public class SymbolTable {
 		}
 	}
 
-	private void rebalance() {
-		SymbolTable temp = new SymbolTable();
+	private void rebalance(int home, int end) {
+		ArrayList<String> keys = new ArrayList<String>();
+		ArrayList<Character> vals = new ArrayList<Character>();
+		// Start at home and "pick up" the values that hashed wrong.
 		for (int i = 0; i < M; i++) {
-			if (this.keys[i] != null) {
-				temp.put(this.keys[i], this.vals[i]);
+			int search_index = (home + 1 + i) % M;
+			if (this.keys[search_index] == null) {
+				break;
+			}
+			if (!(search_index == hash(this.keys[search_index]))) {
+				keys.add(this.keys[search_index]);
+				vals.add(this.vals[search_index]);
+				this.keys[search_index] = null;
+				this.vals[search_index] = null;
+				this.N--;
 			}
 		}
+		// Readd the "picked" values to the table
+		for (int i = 0; i < keys.size(); i++) {
+			this.put(keys.get(i), vals.get(i));
 
-		this.keys = temp.keys;
-		this.vals = temp.vals;
+		}
+
 	}
 }
