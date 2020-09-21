@@ -124,7 +124,7 @@ public class SymbolTable {
 				this.N--;
 				this.rebalance(home, search_index);
 
-				break;
+				return;
 			}
 			// Added condition for not finding the searched key
 			if (this.keys[search_index] == null) {
@@ -157,7 +157,7 @@ public class SymbolTable {
 	private void rebalance(int home, int end) {
 		ArrayList<String> keys = new ArrayList<String>();
 		ArrayList<Character> vals = new ArrayList<Character>();
-		// Start at home and "pick up" the values that hashed wrong.
+		// Start at home and "pick up" the values that hashed "wrong".
 		for (int i = 0; i < M; i++) {
 			int search_index = (home + 1 + i) % M;
 			if (this.keys[search_index] == null) {
@@ -171,7 +171,7 @@ public class SymbolTable {
 				this.N--;
 			}
 		}
-		// Readd the "picked" values to the table
+		// Re-add the "picked" values to the table
 		for (int i = 0; i < keys.size(); i++) {
 			this.put(keys.get(i), vals.get(i));
 

@@ -2,6 +2,18 @@ public class test {
 
     public static void main(final String[] args) {
         SymbolTable st = new SymbolTable();
+        // Fanny Forsberg test-case
+        st.put("hje", 'c');
+        st.put("hej", 'a');
+        st.put("jhe", 'b');
+        st.put("jha", 'g');
+        st.put("ehj", 's');
+        st.put("jhc", 'w');
+        st.dump();
+        st.put("hje", null);
+        st.dump();
+
+        st = new SymbolTable();
 
         st.put("hje", 'c');
         st.dump();
